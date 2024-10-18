@@ -19,22 +19,17 @@ class User():
     # if there are any effects in the persistent buffer, we should probably do something about that.
     def advanceEffects(self):
         # if running verbose mode
-        if flags.verbose:
-            print("Advancing effects, count =", len(self.persistent))
+        vprint("Advancing effects, count =", len(self.persistent))
         #
 
         # for each effect in the persistent buffer, we use the effect if its not expired.
         for effect in self.persistent:
             if not effect.expired():
-                # check effect type
-                if isinstance(effect, DamageEffect):
-                    if flags.verbose:
-                        print("\tused damage effect")
-                    self.hp += effect.useEffect()
-            else:
-                if flags.verbose:
-                    print("\tremoved effect")
-                self.persistent.remove(effect)
+                effect.useEffect(self)
+                if effect.expired():
+                    vprint("\tremoved effect")
+                    self.persistent.remove(effect)
+                
 
     # uses an item and applies its effects into persistent.
     def useItem(self, slot: int):

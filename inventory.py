@@ -1,6 +1,6 @@
 from items import *
 from typing import List
-import flags
+from flags import vprint
 
 class Inventory:
     storage: List[Item] = []
@@ -16,19 +16,13 @@ class Inventory:
 
     #     
     def addItem (self, item: Item) -> bool:
+        # check if given index is within the bounds of this storage object
         if self.storageSize > len(self.storage):
             self.storage.append(item)
-            # if running verbose mode
-            if flags.verbose:
-                print("Item added")
-            #
+            vprint("Item added")
             return True
         
-        # if running verbose mode
-        if flags.verbose:
-            print("Inventory full!")
-        #
-        
+        vprint("Inventory full!")        
         return False
     
     # uses the item in the inventory
@@ -39,17 +33,9 @@ class Inventory:
             # use the item, then check if we can still use it, if not then we delete the consumable.
             returnVal = self.storage[slot].use();
             if not self.storage[slot].canUse():
-                
-                # if running verbose mode
-                if flags.verbose:
-                    print("Used up " + self.storage[slot].name)
-                #
-                
+                vprint("Used up " + self.storage[slot].name)
                 del self.storage[slot]
             return returnVal
         else:
-            # if running verbose mode
-            if flags.verbose:
-                print("invalid index")
-            #
+            vprint("invalid index")
             return -1

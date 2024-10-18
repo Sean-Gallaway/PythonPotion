@@ -1,4 +1,6 @@
-import flags
+from __future__ import annotations
+from flags import vprint
+
 class Effect:
     effectName = ""
     duration = 0
@@ -6,9 +8,7 @@ class Effect:
         raise NotImplementedError()
     
     def __del__ (self):
-        # if running verbose mode
-        if flags.verbose:
-            print("Deleted " + self.name)
+        vprint("Deleted " + self.name)
 
     # check if this Effect has expired or not
     def expired (self) -> bool:
@@ -26,12 +26,35 @@ class DamageEffect(Effect):
         self.duration = duration
 
     # 
-    def useEffect (self) -> int:
+    def useEffect (self, user: User): # type: ignore
         self.duration -= 1
-        return -(self.amount * self.times)
+        user.hp -= (self.amount * self.times)
 
 class HealingEffect(DamageEffect):
     # override damage effect, just turn it negative
-    def useEffect (self) -> int:
+    def useEffect (self, user: User) -> int: # type: ignore
         self.duration -= 1
-        return self.amount * self.times
+        user.hp += (self.amount * self.times)
+    
+class ConditionalEffect(Effect):
+    triggeredEffect = None
+    condition = ""
+    
+    #
+    def __init__ (self, name: str, eff: Effect, con: str):
+        self.triggeredEffect = eff
+        self.condition = con
+        Effect.name = name
+    
+    #
+    def useEffect (self, user: User): # type: ignore
+        if self.condition != "":
+            if eval(self.condition):
+                vprint("passed condition")
+                return self.triggeredEffect.useEffect(user)
+            else:
+                vprint("did not pass condition")
+
+    #
+    def expired (self) -> bool:
+        return self.triggeredEffect.duration <= 0
