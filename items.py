@@ -1,4 +1,5 @@
 import copy
+from typing import List
 from effects import *
 
 class Item:
@@ -45,6 +46,12 @@ class Consumable(Item):
         elif (self.uses == 0):
             del self
         return list
+    
+    def __str__(self):
+        eff = ""
+        for effect in self.effect:
+            eff += str(effect)
+        return self.name + " " + eff + " uses: " + str(self.uses)
 
 # builder pattern to create potions via method chaining.
 class PotionBuilder:
@@ -67,6 +74,12 @@ class PotionBuilder:
     @staticmethod
     def addEffect (effect: Effect):
         PotionBuilder.effectList.append(effect)
+        return PotionBuilder
+    
+    # adds an effect to the potion effect list.
+    @staticmethod
+    def addEffect (effect: List[Effect]):
+        PotionBuilder.effectList.extend(effect)
         return PotionBuilder
     
     # sets the number of uses a potion has.

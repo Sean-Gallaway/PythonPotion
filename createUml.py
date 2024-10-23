@@ -25,7 +25,6 @@ for (dirpath, dirnames, files) in walk(folderToCheck):
         if ".py" in item and item != "createUml.py":
             f.append(item)
     break
-print(f)
 
 # read each file for defs
 info = []
@@ -35,9 +34,6 @@ for file in f:
         d = {}
         info.append(d)
         for line in opened:
-            if "def" in line:
-                pass
-
             # new class found
             if "class" in line and ":" in line:
                 # extract class name, will capture an empty string as well. lets filter it out
@@ -53,6 +49,10 @@ for file in f:
             
             # functions
             if "def" in line and ":" in line:
+                if len(re.findall(r"(\t|\s.)def.*", line)) == 0:
+                    d = {}
+                    info.append(d)
+
                 # extract functions
                 temp = re.findall(r'(?<=def ).*?\n', line)
                 if "function" not in info[-1]:
@@ -72,9 +72,10 @@ for item in info:
         out.write("From file: " + item.get("file") + "\n")
         
         # write down functions
-        for func in item.get("function"):
-            # TODO im just going to assume that everything is public.
-            out.write("\t+ " + func + "\n")
+        if "function" in item:
+            for func in item.get("function"):
+                # TODO im just going to assume that everything is public.
+                out.write("\t+ " + func + "\n")
         out.write("}\n")
 
         # put subclassing into a buffer for later since afaik standard is that 

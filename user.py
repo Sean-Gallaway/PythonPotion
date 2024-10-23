@@ -19,7 +19,7 @@ class User():
     # if there are any effects in the persistent buffer, we should probably do something about that.
     def advanceEffects(self):
         # if running verbose mode
-        vprint("Advancing effects, count =", len(self.persistent))
+        vprint("Advancing effects, count =" + str(len(self.persistent)) )
         #
 
         # for each effect in the persistent buffer, we use the effect if its not expired.
@@ -35,6 +35,9 @@ class User():
     def useItem(self, slot: int):
         val = self.inv.useItem(slot)
         self.persistent.extend(val)
+
+    def getItem(self, slot: int):
+        return self.inv.getItem(slot)
     
     # adds a given item to the inventory
     def addToInventory(self, item: Item):

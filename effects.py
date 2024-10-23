@@ -1,5 +1,12 @@
 from __future__ import annotations
 from flags import vprint
+from enum import Enum
+
+class EffectType(Enum):
+    CONDITIONAL = 0
+    HEALING = 1
+    DAMAGE = 2
+
 
 class Effect:
     effectName = ""
@@ -30,6 +37,9 @@ class DamageEffect(Effect):
         self.duration -= 1
         user.hp -= (self.amount * self.times)
 
+    def __str__ (self):
+        return self.name + " amount: " + str(self.amount) + " times: " + str(self.times) 
+
 class HealingEffect(DamageEffect):
     # override damage effect, just turn it negative
     def useEffect (self, user: User) -> int: # type: ignore
@@ -50,10 +60,10 @@ class ConditionalEffect(Effect):
     def useEffect (self, user: User): # type: ignore
         if self.condition != "":
             if eval(self.condition):
-                vprint("passed condition")
+                print("passed condition")
                 return self.triggeredEffect.useEffect(user)
             else:
-                vprint("did not pass condition")
+                print("did not pass condition")
 
     #
     def expired (self) -> bool:

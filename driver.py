@@ -3,6 +3,7 @@ from items import *
 from user import *
 from inventory import *
 from tkinter import *
+from ingredient import *
 
 user = User()
 
@@ -16,12 +17,13 @@ def test():
 #             .setName("Poison Potion")
 #             .createPotion())
 
-user.addToInventory(PotionBuilder
-                    .addEffect(ConditionalEffect("Con", DamageEffect("dmg", 10, 1, 1), "2 == 2"))
-                    .setUses(1)
-                    .setName("Weird Potion")
-                    .createPotion() )
+# user.addToInventory(PotionBuilder
+#                     .addEffect(ConditionalEffect("Con", DamageEffect("dmg", 10, 1, 1), "2 == 2"))
+#                     .setUses(1)
+#                     .setName("Weird Potion")
+#                     .createPotion() )
 
+user.addToInventory(generatePotion([IngredientType.ROOT, IngredientType.FROST_POWDER, IngredientType.MINT]))
 
 
 user.useItem(0)

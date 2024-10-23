@@ -25,6 +25,14 @@ class Inventory:
         vprint("Inventory full!")        
         return False
     
+    #
+    def getItem (self, slot: int):
+        if len(self.storage) >= slot:
+            return self.storage[slot]
+        else:
+            vprint("invalid index")
+            return -1
+    
     # uses the item in the inventory
     def useItem (self, slot: int):
         # check if the index is in range
