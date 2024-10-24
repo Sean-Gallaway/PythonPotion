@@ -24,9 +24,13 @@ class User():
 
         # for each effect in the persistent buffer, we use the effect if its not expired.
         for effect in self.persistent:
+            vprint("\t" + str(effect))
             if not effect.expired():
                 effect.useEffect(self)
-                if effect.expired():
+        tempList = []
+        tempList[:] = [c for c in self.persistent]
+        for effect in tempList:
+            if effect.expired():
                     vprint("\tremoved effect")
                     self.persistent.remove(effect)
                 

@@ -23,7 +23,7 @@ def test():
 #                     .setName("Weird Potion")
 #                     .createPotion() )
 
-user.addToInventory(generatePotion([IngredientType.ROOT, IngredientType.FROST_POWDER, IngredientType.MINT]))
+user.addToInventory(generatePotion(Ingredient(IngredientType.FROST_POWDER), Ingredient(IngredientType.FROST_POWDER) ))
 
 
 user.useItem(0)
