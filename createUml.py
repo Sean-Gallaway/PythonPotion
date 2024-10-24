@@ -31,8 +31,6 @@ info = []
 for file in f:
     classString = ""
     with open(folderToCheck + "\\" + file, 'r') as opened:
-        d = {}
-        info.append(d)
         for line in opened:
             # new class found
             if "class" in line and ":" in line:
@@ -46,12 +44,14 @@ for file in f:
                     # extract subclass names
                     temp = re.findall(r'(?<=\().*?(?=\))', line)
                     info[-1].update({"subclasses": regexToList(temp)})
+                    if "Enum" in info[-1].get("subclasses"):
+                        info[-1].update({ "class": ("enum " + str(info[-1].get("class"))) })
             
             # functions
             if "def" in line and ":" in line:
                 if len(re.findall(r"(\t|\s.)def.*", line)) == 0:
-                    d = {}
-                    info.append(d)
+                    info.append({"class": "GLOBAL_" + str(file)})
+                    info[-1].update({"file": str(file)})
 
                 # extract functions
                 temp = re.findall(r'(?<=def ).*?\n', line)
@@ -68,7 +68,10 @@ subclassing = []
 for item in info:
     # write down class info
     if "class" in item:
-        out.write("class " + item.get("class") + " {\n")
+        if "enum " not in item.get("class"):
+            out.write("class " + item.get("class") + " {\n")
+        elif "enum " in item.get("class"):
+            out.write(item.get("class") + " {\n")
         out.write("From file: " + item.get("file") + "\n")
         
         # write down functions
@@ -82,7 +85,10 @@ for item in info:
         # aggregation/composition/inheritence is placed at the bottom of the file.
         if "subclasses" in item:
             for subc in item.get("subclasses"):
-                subclassing.append(subc + " <|-- " + item.get("class"))
+                if subc != "Enum":
+                    subclassing.append(subc + " <|-- " + item.get("class"))
+    else:
+        print(item)
 
 for item in subclassing:
     out.write(item + "\n")
