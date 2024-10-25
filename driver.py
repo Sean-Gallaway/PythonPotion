@@ -25,6 +25,8 @@ print("user hp:", user.hp)
 print("deleting user")
 del user
 
+print("test")
+
 # window = Tk()
 # window.title("Potion Game")
 # window.configure(background="gray")
