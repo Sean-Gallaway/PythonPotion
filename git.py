@@ -45,14 +45,15 @@ if any_changes:
     commit_message = input("Give a commit message below:\n")
     subprocess.run("git commit -m \"" + commit_message + "\"")
 
+confirmations = ["y", "yes"]
 ask_save = input("save manifest?\n")
-if "y" or "yes" in ask_save:
+if ask_save in confirmations:
     print("manifest saved")
     manifest_new = open("git_manifest.txt", "w")
     for key, value in f.items():
         manifest_new.write(key + " " + value + " \n")
 
 ask_push = input("Commit?\n")
-if "y" or "yes" in ask_push:
+if ask_push in confirmations:
     print("pushing")
     subprocess.run("git push")
