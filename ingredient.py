@@ -1,4 +1,5 @@
 from enum import Enum
+from math import trunc
 import random
 from typing import List
 from effects import *
@@ -13,9 +14,16 @@ class Ingredient():
     info = []
 
     def __init__ (self, type: IngredientType):
-        self.info = type.value.get("effects")
-        for i in self.info[1::]:
-            i *= random.uniform(.6, 1.4)
+        print("ingredientcreated")
+        self.info = []
+        for a in type.value.get("effects"):
+            e = []
+            e.append(a[0])
+            for b in a[1:-1:]:
+                e.append(round(b * random.uniform(.6, 1.4), 2))
+            e.append(a[-1])
+            self.info.append(e)
+            print(e)
 
 def generateEffect (type: EffectType, params: list) -> Effect:
     match type:

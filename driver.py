@@ -10,19 +10,6 @@ user = User()
 def test():
     print("")
     
-
-# user.addToInventory(PotionBuilder
-#             .addEffect(DamageEffect("Poison", 10, 3, 1))
-#             .setUses(2)
-#             .setName("Poison Potion")
-#             .createPotion())
-
-# user.addToInventory(PotionBuilder
-#                     .addEffect(ConditionalEffect("Con", DamageEffect("dmg", 10, 1, 1), "2 == 2"))
-#                     .setUses(1)
-#                     .setName("Weird Potion")
-#                     .createPotion() )
-
 user.addToInventory(generatePotion(Ingredient(IngredientType.FROST_POWDER), Ingredient(IngredientType.FROST_POWDER) ))
 
 
