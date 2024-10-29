@@ -1,7 +1,5 @@
 from enum import Enum
-from math import trunc
 import random
-from typing import List
 from effects import *
 from items import PotionBuilder
 
@@ -10,11 +8,12 @@ class IngredientType(Enum):
     FROST_POWDER        = {"name": "frost powder", "effects": [ [EffectType.DAMAGE, 1, 1, 1] ]}
     MINT                = {"name": "mint", "effects": [ [EffectType.CONDITIONAL, [EffectType.HEALING, 100, 1, 1], "user.hp < 0" ] ]}
 
+# the Ingredient class stores info based on an ingredient, with some variance because some ingredients can be better than others,
+# regardless of if they are the same type or not.
 class Ingredient():
     info = []
 
     def __init__ (self, type: IngredientType):
-        print("ingredientcreated")
         self.info = []
         for a in type.value.get("effects"):
             e = []
@@ -23,8 +22,9 @@ class Ingredient():
                 e.append(round(b * random.uniform(.6, 1.4), 2))
             e.append(a[-1])
             self.info.append(e)
-            print(e)
 
+
+# generate an effect based on a given EffectType.
 def generateEffect (type: EffectType, params: list) -> Effect:
     match type:
         case EffectType.DAMAGE:

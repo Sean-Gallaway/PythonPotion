@@ -1,9 +1,7 @@
-from effects import *
-from items import *
 from user import *
-from inventory import *
 from tkinter import *
 from ingredient import *
+from customer import *
 
 user = User()
 
@@ -26,6 +24,9 @@ print("deleting user")
 del user
 
 print("test")
+
+cu = customer()
+cu.wants()
 
 # window = Tk()
 # window.title("Potion Game")
