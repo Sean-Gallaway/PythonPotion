@@ -1,13 +1,10 @@
 from user import *
-from tkinter import *
 from ingredient import *
 from customer import *
+from animationHandler import *
+
 
 user = User()
-
-def test():
-    print("")
-    
 user.addToInventory(generatePotion(Ingredient(IngredientType.FROST_POWDER), Ingredient(IngredientType.FROST_POWDER) ))
 
 
@@ -28,14 +25,5 @@ print("test")
 cu = customer()
 cu.wants()
 
-# window = Tk()
-# window.title("Potion Game")
-# window.configure(background="gray")
-# window.minsize(300, 200)
-
-# test = Button(window, text="drink", command=test)
-# test.pack()
-
-# window.mainloop();
-
 print("end")
+

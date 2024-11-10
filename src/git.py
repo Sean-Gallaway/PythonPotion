@@ -61,7 +61,7 @@ if ask_save in confirmations:
         manifest_new.write(key + " " + value + " \n")
 
 # ask to commit to the repo
-ask_push = input("Commit?\n")
+ask_push = input("Push?\n")
 if ask_push in confirmations:
     print("pushing")
     subprocess.run("git push")
