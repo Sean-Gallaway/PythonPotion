@@ -1,0 +1,1 @@
+# py -m PyInstaller src/driver.py --add-data "src/animationHandler.py;.
