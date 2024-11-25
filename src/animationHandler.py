@@ -55,8 +55,15 @@ obj.setXY(0, 2*winSize[1]/3)
 submenu = menu((500, 200), manager=layoutManager(horizontal=True))
 submenu.addItem(btn1, lock=True)
 submenu.addItem(btn2, lock=True)
+
 obj.addItem(label("Test", (200, 50) ))
 obj.addItem(submenu)
+obj.keyAction(K_ESCAPE, obj.toggle)
+#
+
+#
+ingredientMenu = menu((winSize[0]*.7, winSize[1]*.7), manager=layoutManager(horizontal=False))
+ingredientMenu.setXY(winSize[0]*.15, winSize[1]*.15)
 #
 
 
@@ -72,11 +79,19 @@ finish animation:
 
 
 play = True
+keys_pressed = None
+
 while play:
+    keys_pressed = pygame.key.get_pressed()
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             vid.stop()
             play = False
+   
+        if event.type == pygame.KEYUP:
+            obj.ifAction(keys_pressed)
+   
         if event.type == MOUSEBUTTONDOWN:
             mpos = pygame.mouse.get_pos()
             for btn in buttonList:
@@ -96,9 +111,6 @@ while play:
 
     window.blit(vidSurface, (0, 0))
     obj.draw(window)
-    
-    # for bt in buttonList:
-    #     bt.draw(window)
 
     pygame.display.update()
     pygame.time.wait(16) # around 60 fps

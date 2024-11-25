@@ -9,7 +9,7 @@ font = pygame.font.SysFont('Corbel',35)
 
 
 # base class for anything being drawn to the screen.
-class animObject ():
+class drawObject ():
     x = 0
     y = 0
     width = 0
@@ -34,7 +34,7 @@ class animObject ():
 
 
 # classic label.
-class label (animObject):
+class label (drawObject):
     text = None
     textSize = None
 
@@ -117,12 +117,59 @@ class layoutManager ():
                 strideY += item.height + self.paddingY
             else:
                 pass
+
+#triggerable object
+class triggerable ():
+    # check if the pressed keys match any of the keyAction trigger keys.
+    # list comprehension could make this better, but this works.
+    def ifAction(self, keys):
+        for key in self.keyActions.keys():
+            if keys[key]:
+                if callable(self.keyActions[key]):
+                    self.keyActions[key]()
     
-# menu object that holds other animObjects.
-class menu (animObject):
+    # sets an action to activate when a key is pressed.
+    def keyAction (self, key: int, func):
+        self.keyActions[key] = func
+
+# says how to animate a drawObject
+class anim ():
+    startPos = None
+    currPos = None
+    endPos = None
+    interpol = None
+    duration = None
+
+    def __init__ (self, dxdy: tuple, duration: float, interpol = None, xy = None, ):
+        self.endPos = dxdy
+        self.duration = duration
+        self.interpol = interpol
+        self.startPos = xy
+
+    def start (self, obj: drawObject):
+        # if we have a defined start position, we should start there, otherwise we will start where the
+        # object currently is located at.
+        if self.startPos != None:
+            self.currPos = self.startPos
+        else:
+            self.currPos = (obj.x, obj.y)
+
+    def advance (self, timeStep: float):
+        try:
+            # use the interpolation function given when this object is created to go from
+            # point A to point B with a given time interval.
+            t = timeStep/self.duration
+            x = self.interpol(self.currPos[0], self.endPos[0], t)
+            y = self.interpol(self.currPos[1], self.endPos[1], t)
+        except:
+            print("smoothing function failed.")
+
+# menu object that holds other drawObjects.
+class menu (drawObject, triggerable):
     objects = None
     open = True
     manager = None
+    keyActions = {}
 
     #constructor
     def __init__ (self, size: tuple, manager = None):
@@ -132,13 +179,17 @@ class menu (animObject):
     
     # draws the menu and its children if it is open.
     def draw (self, window: pygame.surface.Surface):
-        if open:
+        if self.open:
             super().draw(window)
             for i in self.objects:
                 i.draw(window)
 
+    # toggles the state of the menu
+    def toggle (self):
+        self.open = not self.open
+
     # checks if object is within the bounds of this menu.
-    def isWithin (self, obj: animObject):
+    def isWithin (self, obj: drawObject):
         if self.x > obj.x or self.x + self.width < obj.x:
             return False
         if self.y > obj.y or self.y + self.width < obj.y:
@@ -146,7 +197,7 @@ class menu (animObject):
         return True
     
     # adds a child to the menu and sets its position in the layout if managed.
-    def addItem (self, obj: animObject, lock = False):
+    def addItem (self, obj: drawObject, lock = False):
         self.objects.append(obj)
         if self.manager != None:
             self.manager.set(self.objects, (self.x, self.y), (self.width, self.height))
