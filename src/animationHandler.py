@@ -1,9 +1,9 @@
-import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-from pygame import *
+from animationGlobals import *
 from pyvidplayer2 import *
 from animationObject import *
 from enum import Enum
+from easingFunctions import *
+
 
 # container for all the pre-rendered animations
 class animations(Enum):
@@ -22,49 +22,63 @@ def anim (a: animations):
     vid.resize(winSize)
     currentAnim = a
 
-
-
-
-# setup window
-winSize = (int(1920/2), int(1080/2))
-pygame.init()
-window = pygame.display.set_mode(winSize)
-pygame.display.set_caption("Potion Game")
-
 # setup background
-vid = Video("potion_game\\animation\\idle.mp4")
+vid = Video("potion_game\\animation\\main.mp4")
 vid.resize( winSize );
 vidSurface = pygame.surface.Surface( winSize )
 
-#
-btn1 = btn("mix", (200, .6*(winSize[1]/3) ))
-btn1.setXY(200, 2.2*winSize[1]/3)
-btn1.bindFunction(anim, animations.MIX)
-#
 
-#
-btn2 = btn("chop", (200, .6*(winSize[1]/3) ))
-btn2.setXY(0, 2.2*winSize[1]/3)
-btn2.bindFunction(anim, animations.CHOP)
-#
+obj = menu((300, 300), path="potion_game\\assets\\paper.png", manager=layoutManager(horizontal=True))
+obj.setXY(winSize[0]/2-300, winSize[1]+200)
+obj.addAnim("Enter", animation((winSize[0]/2-300, winSize[1]/10), .5, interpol=eioCubic) )
+obj.keyAction(K_ESCAPE, obj.playAnim, "Enter")
 
-# Bottom menu
-obj = menu((winSize[0], winSize[1]/3), manager=layoutManager(horizontal=False))
-obj.setXY(0, 2*winSize[1]/3)
+l2 = label("Hi", fontSize=50)
+l2.setBackgroundColor(0, 0, 0, 0)
+obj.addItem(l2, lock=True)
 
-submenu = menu((500, 200), manager=layoutManager(horizontal=True))
-submenu.addItem(btn1, lock=True)
-submenu.addItem(btn2, lock=True)
+# img =  pygame.image.load("potion_game\\assets\\paper.png")
+# isize = img.get_rect()
+# img = pygame.transform.scale(img, (isize[0]*2, isize[1]*2))
 
-obj.addItem(label("Test", (200, 50) ))
-obj.addItem(submenu)
-obj.keyAction(K_ESCAPE, obj.toggle)
-#
+la = label("Press ESC to start.", fontSize = 60, fontColor=(255, 255, 255, 255))
+la.setBackgroundColor(0, 0, 0, 100)
+la.setXY(winSize[0]/2, winSize[1]/2-100, True)
+laa = animation((winSize[0]/2-300, -100), .05, interpol=eioCubic)
+la.addAnim("Enter", laa)
+la.keyAction(K_ESCAPE, la.playAnim, "Enter")
 
-#
-ingredientMenu = menu((winSize[0]*.7, winSize[1]*.7), manager=layoutManager(horizontal=False))
-ingredientMenu.setXY(winSize[0]*.15, winSize[1]*.15)
-#
+
+
+# #
+# btn1 = btn("mix", (200, .6*(winSize[1]/3) ))
+# btn1.setXY(200, 2.2*winSize[1]/3)
+# btn1.bindFunction(anim, animations.MIX)
+# #
+
+# #
+# btn2 = btn("chop", (200, .6*(winSize[1]/3) ))
+# btn2.setXY(0, 2.2*winSize[1]/3)
+# btn2.bindFunction(anim, animations.CHOP)
+# #
+
+# # Bottom menu
+# obj = menu((winSize[0], winSize[1]/3), manager=layoutManager(horizontal=False))
+# obj.setXY(0, 2*winSize[1]/3)
+
+# submenu = menu((500, 200), manager=layoutManager(horizontal=True))
+# submenu.addItem(btn1, lock=True)
+# submenu.addItem(btn2, lock=True)
+
+# obj.addItem(label("Test", (200, 50) ))
+# obj.addItem(submenu)
+# obj.keyAction(K_ESCAPE, obj.toggle)
+# #
+
+# #
+# ingredientMenu = menu((winSize[0]*.7, winSize[1]*.7), manager=layoutManager(horizontal=False))
+# ingredientMenu.setXY(winSize[0]*.15, winSize[1]*.15)
+# #
 
 
 '''
@@ -78,11 +92,16 @@ finish animation:
 
 
 
+
+
+
+
+
 play = True
 keys_pressed = None
-
 while play:
     keys_pressed = pygame.key.get_pressed()
+    dt = clock.tick(60) / 1000
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -90,7 +109,9 @@ while play:
             play = False
    
         if event.type == pygame.KEYUP:
-            obj.ifAction(keys_pressed)
+            for widget in actionList:
+                print(widget)
+                widget.ifAction(keys_pressed)
    
         if event.type == MOUSEBUTTONDOWN:
             mpos = pygame.mouse.get_pos()
@@ -111,6 +132,7 @@ while play:
 
     window.blit(vidSurface, (0, 0))
     obj.draw(window)
+    la.draw(window)
 
     pygame.display.update()
     pygame.time.wait(16) # around 60 fps

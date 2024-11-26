@@ -2,7 +2,7 @@ from os import walk
 import re
 
 # for fun UML generator, tries to read the files as-is, although some stuff would be easier if there was a tagging system.
-folderToCheck = "potion_game"
+folderToCheck = "potion_game//src"
 
 # convert the result from a regex findall to a list object because it doesn't automatically do that for some reason.
 def regexToList(input) -> list:
