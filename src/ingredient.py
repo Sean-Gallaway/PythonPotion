@@ -4,9 +4,9 @@ from effects import *
 from items import PotionBuilder
 
 class IngredientType(Enum):
-    ROOT                = {"name": "big root", "effects": [ [EffectType.DAMAGE, 10, 4, 1] ]}
-    FROST_POWDER        = {"name": "frost powder", "effects": [ [EffectType.DAMAGE, 1, 1, 1] ]}
-    MINT                = {"name": "mint", "effects": [ [EffectType.CONDITIONAL, [EffectType.HEALING, 100, 1, 1], "user.hp < 0" ] ]}
+    ROOT                = {"name": "big root", "effects": [ [EffectType.DAMAGE, 10, 4, 1] ], "icon": "big_root.png"}
+    FROST_POWDER        = {"name": "frost powder", "effects": [ [EffectType.DAMAGE, 1, 1, 1] ], "icon": "frost_powder.png"}
+    MINT                = {"name": "mint", "effects": [ [EffectType.CONDITIONAL, [EffectType.HEALING, 100, 1, 1], "user.hp < 0" ] ], "icon": "mint.png"}
 
 # the Ingredient class stores info based on an ingredient, with some variance because some ingredients can be better than others,
 # regardless of if they are the same type or not.

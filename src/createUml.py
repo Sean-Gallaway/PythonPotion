@@ -3,6 +3,7 @@ import re
 
 # for fun UML generator, tries to read the files as-is, although some stuff would be easier if there was a tagging system.
 folderToCheck = "potion_game//src"
+lineCount = 0
 
 # convert the result from a regex findall to a list object because it doesn't automatically do that for some reason.
 def regexToList(input) -> list:
@@ -32,6 +33,7 @@ for file in f:
     classString = ""
     with open(folderToCheck + "\\" + file, 'r') as opened:
         for line in opened:
+            lineCount += 1
             # new class found
             if "class" in line and ":" in line:
                 # extract class name, will capture an empty string as well. lets filter it out
@@ -96,4 +98,4 @@ out.write("@enduml")
 out.close()
 
 
-
+print(lineCount)
