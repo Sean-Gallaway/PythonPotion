@@ -5,7 +5,7 @@ from animationHandler import *
 
 
 user = User()
-user.addToInventory(generatePotion(Ingredient(IngredientType.FROST_POWDER), Ingredient(IngredientType.FROST_POWDER) ))
+# user.addToInventory(generatePotion(Ingredient(IngredientType.FROST_POWDER), Ingredient(IngredientType.FROST_POWDER) ))
 
 
 user.useItem(0)

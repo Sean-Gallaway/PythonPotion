@@ -8,10 +8,12 @@ from animationGlobals import winSize
 
 buttonList = []
 actionList = []
-
+ingOpen = False
 
 # params: fade in, fade out, scene
 def transitionScene (args: tuple):
+    buttonList.clear()
+    actionList.clear()
     transition = drawObject(ag.winSize)
     transition.setBackgroundColor(0, 0, 0, 0)
     transition.addAnim("fadein", animation(args[0], 255, interpol=eioCubic, type=animType.FADE, func=[(ag.anim, ag.animations(args[2])), (transition.playAnim, "fadeout")] ))
@@ -21,24 +23,72 @@ def transitionScene (args: tuple):
     transition.playAnim("fadein")
 
 
-
+def ingOpenSet (open):
+    global ingOpen
+    ingOpen = open
 
 
 def popup(args: tuple):
-    m = cMenu((winSize[0]*.5, winSize[1]*.5), args[0], path="potion_game\\assets\\paper.png", manager=layoutManager(horizontal=True))
+    m = cMenu((winSize[0]*.5, winSize[1]*.5), args[0], manager=layoutManager(horizontal=True, outerPaddingX=10, outerPaddingY=10))
+    m.setBackgroundColor(0, 0, 0, 150, outline=10, outlineColor=(255, 255, 255, 200))
+    m.setXY(winSize[0]*.25, winSize[1]*.25)
     ag.scene[args[0]] = m
 
     import ingredient as i
     def ingredientInfo (ing: i.IngredientType):
-        im = cMenu((300, 300), "ingWin")
-        im.setXY(100, 100)
+        global ingOpen
+        print(ingOpen)
+        if ingOpen:
+            return
+        ingOpen = True
+
+        outlineSize = 10
+        thisWin = (winSize[0]*.25, winSize[1]*.25)
+        im = cMenu(thisWin, "ingWin")
+        im.setBackgroundColor(0, 0, 0, 150, outline=outlineSize, outlineColor=(255, 255, 255, 200))
+        im.setXY(winSize[0]*.5, winSize[1]*.35)
         ag.scene["ingWin"] = im
-        # ag.addToScene( (("ingWin", im)) )
-        # print(ing)
+        im.exitBtn.bindFunction(ingOpenSet, False)
+
+        name = label(ing.value["name"], fontSize=20, fontColor=(255, 255, 255, 255))
+        im.addItem(name)
+        name.setXY(winSize[0]*.5+outlineSize, winSize[1]*.35+outlineSize)
+        name.setBackgroundColor(0,0,0,0)
+
+        desc = label(ing.value["desc"], size=(thisWin[0]*.9, thisWin[1]*.1), fontSize=20, fontColor=(255, 255, 255, 255) )
+        desc.setXY(winSize[0]*.5+outlineSize, winSize[1]*.4+outlineSize)
+        im.addItem(desc)
+        desc.setBackgroundColor(0,0,0,0)
+
+        btnMenu = menu((thisWin[0], thisWin[1]*.1), manager=layoutManager(horizontal=True))
+        btnMenu.setBackgroundColor(0, 0, 0, 0)
+        btnMenu.setXY(winSize[0]*.5+outlineSize, winSize[1]*.6-thisWin[1]*.11-outlineSize)
+
+        mix = btn("Add to Mix", size=(thisWin[0]*.4, thisWin[1]*.1), center=True, fontColor=(255, 255, 255, 255))
+        mix.setBackgroundColor(0, 0, 0, 150, outline=outlineSize/2, outlineColor=(255, 255, 255, 200))
+        mix.bindFunction(i.addIngredient, ing)
+        mix.bindFunction(im.exitBtn.forceTrigger, None)
+        mix.bindFunction(ag.anim, ag.animations.MIX)
+        mix.bindFunction(m.exitBtn.forceTrigger, None)
+        mix.bindFunction(ingOpenSet, False)
+        btnMenu.addItem(mix)
+        
+        if ing.value["chop"]:
+            chop = btn("Chop up and Mix", size=(thisWin[0]*.5, thisWin[1]*.1), center=True, fontColor=(255, 255, 255, 255) )
+            chop.setBackgroundColor(0, 0, 0, 150, outline=outlineSize/2, outlineColor=(255, 255, 255, 200))
+            chop.bindFunction(ag.anim, ag.animations.CHOP)
+            chop.bindFunction(im.exitBtn.forceTrigger, None)
+            chop.bindFunction(m.exitBtn.forceTrigger, None)
+            chop.bindFunction(ingOpenSet, False)
+            btnMenu.addItem(chop)
+
+        im.addItem(btnMenu)
+
+
 
     dir = "potion_game\\assets\\ingredients\\"
     for val in i.IngredientType:
-        b = btn("",  (winSize[0]*.05, winSize[0]*.05), path=dir+val.value["icon"])
+        b = btn(" ",  (winSize[0]*.05, winSize[0]*.05), path=dir+val.value["icon"])
         b.bindFunction(ingredientInfo, (val))
         m.addItem(b)
         
@@ -72,7 +122,7 @@ class triggerable ():
 class drawObject (triggerable):
 
     # constructor
-    def __init__ (self, size: tuple, path = ""):
+    def __init__ (self, size: tuple, path = "", outline = 0, outlineColor = (0, 0, 0, 255)):
         self.width = size[0]
         self.height = size[1]
         self.x = 0
@@ -85,7 +135,11 @@ class drawObject (triggerable):
             self.obj = pygame.transform.scale(self.obj, size)
         else:
             self.obj = pygame.surface.Surface(size, pygame.SRCALPHA, 32 )
-            self.obj.fill(self.background)
+            if outline != 0:
+                self.obj.fill(outlineColor)
+                self.obj.fill(self.background, self.obj.get_rect().inflate(-outline, -outline))
+            else:
+                self.obj.fill(self.background)
         self.animations = {}
         super().__init__()
 
@@ -105,9 +159,13 @@ class drawObject (triggerable):
             self.y = dy
     
     # set the background color as a tuple
-    def setBackgroundColor (self, r, g, b, a):
+    def setBackgroundColor (self, r, g, b, a, outline = 0, outlineColor = (0, 0, 0, 255)):
         self.background = (r, g, b, a)
-        self.obj.fill(self.background)
+        if outline != 0:
+            self.obj.fill(outlineColor)
+            self.obj.fill(self.background, self.obj.get_rect().inflate(-outline, -outline))
+        else:
+            self.obj.fill(self.background)
 
     # add to the animation dictionary of this object
     def addAnim(self, name: str, a: 'animation'):   
@@ -205,7 +263,8 @@ class animation ():
 class label (drawObject):
 
     # constructor
-    def __init__ (self, msg: str, size: tuple = None, fontSize: float = -1, fontColor = (0, 0, 0, 255), path = ""):
+    def __init__ (self, msg: str, size: tuple = None, fontSize: float = -1, fontColor = (0, 0, 0, 255), path = "", center = False, outline = 0, outlineColor = (0, 0, 0, 255)):
+        self.center = center
         if fontSize == -1 and size is None:
             print("Error with label, size or fontSize must be defined.")
             return
@@ -214,13 +273,43 @@ class label (drawObject):
         if fontSize == -1:
             fontSize = size[0] * .5
         font = pygame.font.SysFont('couriernew', int(fontSize)) 
-
-        self.text = font.render(msg, True, fontColor)
+        
+        # define our size if we don't have a defined size, this is important for the future text splitting step.
         self.textSize = font.size(msg)
         if size is None:
             size = self.textSize
 
-        super().__init__(size, path=path)
+        # splits text and figures out where we should wrap it.
+        words = msg.split()
+
+        # now, construct lines out of these words
+        self.textList = []
+        while len(words) > 0:
+            # get as many words as will fit within allowed_width
+            line_words = []
+            while len(words) > 0:
+                line_words.append(words.pop(0))
+                fw, fh = font.size(' '.join(line_words + words[:1]))
+                if fw > size[0]:
+                    break
+
+            # add a line consisting of those words
+            line = ' '.join(line_words)
+            self.textList.append(line)
+
+
+        # convert our textList into the pygame text objects so they can be rendered.
+        self.text = []
+        for t in self.textList:
+            r = font.render(t, True, fontColor)
+            self.text.append(r)
+
+        if len(self.text) > 1:
+            size = list(size)
+            size[1] *= len(self.textList)
+            size = tuple(size)
+
+        super().__init__(size, outline=outline, outlineColor=outlineColor, path=path)
 
 
     # draws this object and its text to a given surface.
@@ -228,7 +317,16 @@ class label (drawObject):
         if self.currentAnimation != None:
             self.currentAnimation.advance(ag.dt)
         window.blit(self.obj, (self.x, self.y))
-        window.blit(self.text, (self.x+(self.width/2-self.textSize[0]/2), self.y+(self.height/2-self.textSize[1]/2)))
+
+
+        # window.blit(self.text, (self.x+(self.width/2-self.textSize[0]/2), self.y+(self.height/2-self.textSize[1]/2)))
+        offset = 0
+        for t in self.text:
+            if self.center:
+                window.blit(t, (self.x+(self.width/2-self.textSize[0]/2), self.y+(self.height/2-self.textSize[1]/2)+offset))
+            else:
+                window.blit(t, (self.x, self.y+offset ))
+            offset += self.textSize[1]
 
 
 
@@ -237,14 +335,23 @@ class label (drawObject):
 class btn (label):
 
     # constructor
-    def __init__ (self, msg: str, size: tuple = None, path = ""):
+    def __init__ (self, msg: str, size: tuple = None, path = "", center = False, fontColor = (0, 0, 0, 255), outline = 0, outlineColor = (0, 0, 0, 255)):
         buttonList.append(self)
         self.func = []
         self.funcArgs = []
         if size is None:
-            super().__init__(msg, size, fontSize = ag.winSize[1]*.1, path=path)
+            super().__init__(msg, size, outline=outline, outlineColor=outlineColor, fontSize = ag.winSize[1]*.1, path=path, center=center, fontColor=fontColor)
         else:
-            super().__init__(msg, size, fontSize = size[1]*.9, path=path)
+            super().__init__(msg, size, outline=outline, outlineColor=outlineColor, fontSize = size[1]*.9, path=path, center=center, fontColor=fontColor)
+
+    def forceTrigger (self, *args):
+        for a in range(0, len(self.func)):
+            if type(self.funcArgs[a][0]) is str:
+                self.func[a](self.funcArgs[a][0])
+            elif type(self.funcArgs[a]) is None:
+                self.func[a]()
+            else:
+                self.func[a](self.funcArgs[a][0])
 
     # check if the cursor is in the bounds of this button using screen space
     def cursorInBounds (self, mouse: list):
@@ -254,8 +361,11 @@ class btn (label):
             return
         # try to run the bound function
         for a in range(0, len(self.func)):
+            # print(self.func[a].__name__, "\t", self.funcArgs[a])
             if type(self.funcArgs[a][0]) is str:
-                self.func[a](self.funcArgs[a])
+                self.func[a](self.funcArgs[a][0])
+            elif type(self.funcArgs[a]) is None:
+                self.func[a]()
             else:
                 self.func[a](self.funcArgs[a][0])
 
@@ -336,8 +446,8 @@ class layoutManager ():
 class menu (drawObject):
 
     #constructor
-    def __init__ (self, size: tuple, manager = None, path = ""):
-        super().__init__(size, path)
+    def __init__ (self, size: tuple, manager = None, path = "", outline = 0, outlineColor = (0, 0, 0, 255)):
+        super().__init__(size, path, outline=outline, outlineColor=outlineColor)
         self.objects = []
         self.manager = manager
         self.open = True
@@ -396,18 +506,25 @@ class menu (drawObject):
 
 
 class cMenu (menu):
-    def __init__(self, size: tuple, id, manager = None, path = ""):
-        super().__init__(size, manager, path)
-        self.exitBtn = btn("x", size=( ag.winSize[0]*.01, ag.winSize[0]*.01 ))
+    def __init__(self, size: tuple, id, manager = None, path = "", outline = 0, outlineColor = (0, 0, 0, 255)):
+        super().__init__(size, manager, path, outline=outline, outlineColor=outlineColor)
+        self.exitBtn = btn("x", size=( ag.winSize[0]*.02, ag.winSize[0]*.02 ))
         self.exitBtn.setBackgroundColor(200, 0, 0, 255)
         self.exitBtn.bindFunction(ag.removeFromScene, id)
-        self.exitBtn.bindFunction(buttonList.remove, self.exitBtn)
+        self.exitBtn.bindFunction(self.removal, None)
         self.id = id
         self.setXY(0, 0)
 
     def draw (self, window: pygame.surface.Surface):
         super().draw(window)
         self.exitBtn.draw(window)
+
+    def removal (self, *args):
+        if self.exitBtn in buttonList:
+            buttonList.remove(self.exitBtn)
+        for item in self.objects:
+            if item in buttonList:
+                buttonList.remove(item)
 
     def setXY(self, dx, dy):
         super().setXY(dx, dy)

@@ -37,11 +37,16 @@ vid.resize( winSize );
 vidSurface = pygame.surface.Surface( winSize )
 
 def removeFromScene(args: tuple):
+    if type(args) is str:
+        del scene[args]
+        return
     for item in args:
         try:
             del scene[item]
         except:
-            print("failed removal")
+            # import traceback
+            # traceback.print_stack()
+            print("failed removal", item)
 
 def addToScene(args: tuple):
     for item in args:

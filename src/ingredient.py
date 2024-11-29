@@ -4,9 +4,16 @@ from effects import *
 from items import PotionBuilder
 
 class IngredientType(Enum):
-    ROOT                = {"name": "big root", "effects": [ [EffectType.DAMAGE, 10, 4, 1] ], "icon": "big_root.png"}
-    FROST_POWDER        = {"name": "frost powder", "effects": [ [EffectType.DAMAGE, 1, 1, 1] ], "icon": "frost_powder.png"}
-    MINT                = {"name": "mint", "effects": [ [EffectType.CONDITIONAL, [EffectType.HEALING, 100, 1, 1], "user.hp < 0" ] ], "icon": "mint.png"}
+    ROOT                = {"name": "Big Root", "effects": [ [EffectType.DAMAGE, 10, 4, 1] ], "icon": "big_root.png", "desc": "A big root from an unnamed plant, eating it might be unwise.", "chop": True}
+
+    FROST_POWDER        = {"name": "Frost Powder", "effects": [ [EffectType.DAMAGE, 1, 1, 1] ], "icon": "frost_powder.png", "desc": "Powder obtained through crushing ice that never melts, cold to the touch.", "chop": False}
+    
+    MINT                = {"name": "Mint", "effects": [ [EffectType.CONDITIONAL, [EffectType.HEALING, 100, 1, 1], "user.hp < 0" ] ], "icon": "mint.png", "desc": "Garden variety mint, soothing.", "chop": True}
+
+
+currPotionList = []
+
+
 
 # the Ingredient class stores info based on an ingredient, with some variance because some ingredients can be better than others,
 # regardless of if they are the same type or not.
@@ -37,10 +44,14 @@ def generateEffect (type: EffectType, params: list) -> Effect:
             return ConditionalEffect("con", test, str(params[1]) )
 
 
-def generatePotion (*ingredientsUsed: Ingredient):
+def generatePotion ():
     list = []
-    for ing in ingredientsUsed:
+    for ing in currPotionList:
         for effect in ing.info:
             list.append(generateEffect(effect[0], effect[1::]))
             
     return PotionBuilder.addEffect(list).setUses(1).setName("Weird Potion").createPotion()
+
+
+def addIngredient(type: Ingredient):
+    currPotionList.append(type)
