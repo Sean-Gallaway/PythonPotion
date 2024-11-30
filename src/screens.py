@@ -36,33 +36,24 @@ def mainMenu(scene):
     
 
 def mixScreen (scene):
-    obj = menu((winSize[0], winSize[1]*.3), manager=layoutManager(horizontal=True, paddingX=1, paddingY=1, outerPaddingX=10, outerPaddingY=10))
-    obj.setBackgroundColor(0, 0, 0, 150, outline=10, outlineColor=(255, 255, 255, 200))
+    outline = 10
+    obj = menu((winSize[0], winSize[1]*.15))
+    obj.setBackgroundColor(0, 0, 0, 150, outline=outline, outlineColor=(255, 255, 255, 200))
     obj.setXY(0, winSize[1]*1.5)
-    obj.addAnim("open", animation(1, dxdy=(0, winSize[1]*.7), interpol=eioCubic))
+    obj.addAnim("open", animation(1, dxdy=(0, winSize[1]*.85), interpol=eioCubic))
     obj.playAnim("open")
 
-    # btn1 = btn("Chop")
-    # btn1.bindFunction(ag.anim, ag.animations.CHOP)
-    # btn2 = btn("Mix")
-    # btn2.bindFunction(ag.anim, ag.animations.MIX)
-    # btn3 = btn("Idle")
-    # btn3.bindFunction(ag.anim, ag.animations.IDLE)
+    btn1 = btn("Ingredients", fontColor=(255, 255, 255, 255))
+    btn1.setXY(outline, winSize[1]*1.505+outline)
+    btn1.setBackgroundColor(0, 0, 0, 100, outline=outline/2, outlineColor=(255, 255, 255, 200))
+    btn1.bindFunction(popup, ("ing") )
 
-    try:
-        btn4 = btn("Create Menu", fontColor=(255, 255, 255, 255))
-        btn4.setBackgroundColor(0, 0, 0, 100)
-        # popup = cMenu((winSize[0]*.5, winSize[1]*.5), "a", path="potion_game\\assets\\paper.png")
-        btn4.bindFunction(popup, ("ing") )
-        # btn4.bindFunction(ag.scene["a"].setXY)
-    except Exception as e:
-        print(e)
-        print("btn4 no")
+    btn2 = btn("Brew", fontColor=(255, 255, 255, 255))
+    btn2.setXY(winSize[0]-btn2.width-outline, winSize[1]*1.505+outline)
+    btn2.setBackgroundColor(0, 0, 0, 100, outline=outline/2, outlineColor=(255, 255, 255, 200))
 
 
-    # obj.addItem(btn1)
-    # obj.addItem(btn2)
-    # obj.addItem(btn3)
-    obj.addItem(btn4)
+    obj.addItem(btn1)
+    obj.addItem(btn2)
 
     scene["root"] = obj

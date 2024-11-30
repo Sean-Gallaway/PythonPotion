@@ -5,10 +5,10 @@ from items import PotionBuilder
 
 class IngredientType(Enum):
     ROOT                = {"name": "Big Root", "effects": [ [EffectType.DAMAGE, 10, 4, 1] ], "icon": "big_root.png", "desc": "A big root from an unnamed plant, eating it might be unwise.", "chop": True}
-
+    CHOPPED_ROOT        = {"name": "Chopped Big Root", "effects": [ [EffectType.DAMAGE, 20, 4, 1] ], "icon": "big_root_powder.png", "desc": "A chopped up big root, eating it is definitely unwise.", "chop": False}
     FROST_POWDER        = {"name": "Frost Powder", "effects": [ [EffectType.DAMAGE, 1, 1, 1] ], "icon": "frost_powder.png", "desc": "Powder obtained through crushing ice that never melts, cold to the touch.", "chop": False}
-    
     MINT                = {"name": "Mint", "effects": [ [EffectType.CONDITIONAL, [EffectType.HEALING, 100, 1, 1], "user.hp < 0" ] ], "icon": "mint.png", "desc": "Garden variety mint, soothing.", "chop": True}
+    MINT_POWDER         = {"name": "Mint Powder", "effects": [ [EffectType.CONDITIONAL, [EffectType.HEALING, 200, 1, 1], "user.hp < 0" ] ], "icon": "mint_powder.png", "desc": "Garden variety mint chopped up finely, immensely soothing.", "chop": False}
 
 
 currPotionList = []

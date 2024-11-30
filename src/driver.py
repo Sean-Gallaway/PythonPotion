@@ -7,23 +7,25 @@ from animationHandler import *
 user = User()
 # user.addToInventory(generatePotion(Ingredient(IngredientType.FROST_POWDER), Ingredient(IngredientType.FROST_POWDER) ))
 
+user.addToInventory()
 
-user.useItem(0)
-print("user hp:", user.hp)
-user.advanceEffects()
 
 # user.useItem(0)
-print("user hp:", user.hp)
-user.advanceEffects()
+# print("user hp:", user.hp)
+# user.advanceEffects()
 
-print("user hp:", user.hp)
-print("deleting user")
-del user
+# # user.useItem(0)
+# print("user hp:", user.hp)
+# user.advanceEffects()
 
-print("test")
+# print("user hp:", user.hp)
+# print("deleting user")
+# del user
 
-cu = customer()
-cu.wants()
+# print("test")
 
-print("end")
+# cu = customer()
+# cu.wants()
+
+# print("end")
 

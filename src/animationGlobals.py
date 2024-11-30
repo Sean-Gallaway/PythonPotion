@@ -38,7 +38,10 @@ vidSurface = pygame.surface.Surface( winSize )
 
 def removeFromScene(args: tuple):
     if type(args) is str:
-        del scene[args]
+        try:
+            del scene[args]
+        except:
+            print("failed removal", args)
         return
     for item in args:
         try:

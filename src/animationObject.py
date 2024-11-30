@@ -9,6 +9,8 @@ from animationGlobals import winSize
 buttonList = []
 actionList = []
 ingOpen = False
+activeIngredient = None
+invOpen = False
 
 # params: fade in, fade out, scene
 def transitionScene (args: tuple):
@@ -27,59 +29,92 @@ def ingOpenSet (open):
     global ingOpen
     ingOpen = open
 
+def invOpenSet (open):
+    global invOpen
+    invOpen = open
 
 def popup(args: tuple):
-    m = cMenu((winSize[0]*.5, winSize[1]*.5), args[0], manager=layoutManager(horizontal=True, outerPaddingX=10, outerPaddingY=10))
+    global invOpen
+
+    # dont open this menu if there is an animation playing or if the inv is open.
+    if ag.currentAnim != ag.animations.IDLE or invOpen:
+        return
+
+    invOpen = True
+    m = cMenu((winSize[0]*.25, winSize[1]*.5), args[0], manager=layoutManager(horizontal=False, outerPaddingX=10, outerPaddingY=10))
     m.setBackgroundColor(0, 0, 0, 150, outline=10, outlineColor=(255, 255, 255, 200))
-    m.setXY(winSize[0]*.25, winSize[1]*.25)
+    m.setXY(0, winSize[1]*.3375)
+    m.exitBtn.bindFunction(invOpenSet, False)
     ag.scene[args[0]] = m
 
     import ingredient as i
     def ingredientInfo (ing: i.IngredientType):
         global ingOpen
-        print(ingOpen)
+        global activeIngredient
         if ingOpen:
-            return
+            if activeIngredient != ing:
+                ag.scene["ingWin"].exitBtn.forceTrigger()
+            else:
+                return
         ingOpen = True
+        buttonCount = len(buttonList)
+
+        # this is only the start of the spaghetti of this section. i was somehow continually getting more and more buttons and couldn't
+        # figure out why so i decided to just pop the buttonList until we get back to the original count. this *should* work as long
+        # as i stay aware that it exists.
+        while len(buttonList) > buttonCount:
+            buttonList.pop()
 
         outlineSize = 10
         thisWin = (winSize[0]*.25, winSize[1]*.25)
+        mix = btn("Add to Mix", size=(thisWin[0]*.4, thisWin[1]*.105), center=True, fontColor=(255, 255, 255, 255))
+        chop = btn("Chop up and Mix", size=(thisWin[0]*.5, thisWin[1]*.105), center=True, fontColor=(255, 255, 255, 255) )
+
+        # exit all menus from root. something should be implemented in cMenu to make this unnecessary but o well
+        def exitMenus (*args):
+            im.exitBtn.forceTrigger()
+            m.exitBtn.forceTrigger()
+            ingOpenSet(False)
+            buttonList.remove(mix)
+            buttonList.remove(chop)
+
+
+        
+        # ingredient window
         im = cMenu(thisWin, "ingWin")
         im.setBackgroundColor(0, 0, 0, 150, outline=outlineSize, outlineColor=(255, 255, 255, 200))
-        im.setXY(winSize[0]*.5, winSize[1]*.35)
+        im.setXY(winSize[0]*.2575, winSize[1]*.5875)
         ag.scene["ingWin"] = im
         im.exitBtn.bindFunction(ingOpenSet, False)
 
+        # name of the ingredient we are looking at
         name = label(ing.value["name"], fontSize=20, fontColor=(255, 255, 255, 255))
         im.addItem(name)
-        name.setXY(winSize[0]*.5+outlineSize, winSize[1]*.35+outlineSize)
+        name.setXY(winSize[0]*.2575+outlineSize, winSize[1]*.5875+outlineSize)
         name.setBackgroundColor(0,0,0,0)
 
+        # description of the ingredient we are looking at
         desc = label(ing.value["desc"], size=(thisWin[0]*.9, thisWin[1]*.1), fontSize=20, fontColor=(255, 255, 255, 255) )
-        desc.setXY(winSize[0]*.5+outlineSize, winSize[1]*.4+outlineSize)
+        desc.setXY(winSize[0]*.2575+outlineSize, winSize[1]*.6375+outlineSize)
         im.addItem(desc)
         desc.setBackgroundColor(0,0,0,0)
 
+        # container for the Mix and Chop buttons.
         btnMenu = menu((thisWin[0], thisWin[1]*.1), manager=layoutManager(horizontal=True))
         btnMenu.setBackgroundColor(0, 0, 0, 0)
-        btnMenu.setXY(winSize[0]*.5+outlineSize, winSize[1]*.6-thisWin[1]*.11-outlineSize)
+        btnMenu.setXY(winSize[0]*.2575+outlineSize, winSize[1]*.84-thisWin[1]*.11-outlineSize)
 
-        mix = btn("Add to Mix", size=(thisWin[0]*.4, thisWin[1]*.1), center=True, fontColor=(255, 255, 255, 255))
+        
         mix.setBackgroundColor(0, 0, 0, 150, outline=outlineSize/2, outlineColor=(255, 255, 255, 200))
         mix.bindFunction(i.addIngredient, ing)
-        mix.bindFunction(im.exitBtn.forceTrigger, None)
         mix.bindFunction(ag.anim, ag.animations.MIX)
-        mix.bindFunction(m.exitBtn.forceTrigger, None)
-        mix.bindFunction(ingOpenSet, False)
+        mix.bindFunction(exitMenus, None)
         btnMenu.addItem(mix)
         
+        chop.setBackgroundColor(0, 0, 0, 150, outline=outlineSize/2, outlineColor=(255, 255, 255, 200))
+        chop.bindFunction(ag.anim, ag.animations.CHOP)
+        chop.bindFunction(exitMenus, None)
         if ing.value["chop"]:
-            chop = btn("Chop up and Mix", size=(thisWin[0]*.5, thisWin[1]*.1), center=True, fontColor=(255, 255, 255, 255) )
-            chop.setBackgroundColor(0, 0, 0, 150, outline=outlineSize/2, outlineColor=(255, 255, 255, 200))
-            chop.bindFunction(ag.anim, ag.animations.CHOP)
-            chop.bindFunction(im.exitBtn.forceTrigger, None)
-            chop.bindFunction(m.exitBtn.forceTrigger, None)
-            chop.bindFunction(ingOpenSet, False)
             btnMenu.addItem(chop)
 
         im.addItem(btnMenu)
@@ -87,10 +122,20 @@ def popup(args: tuple):
 
 
     dir = "potion_game\\assets\\ingredients\\"
+    index = 0
+    row = menu((winSize[0]*.25, winSize[0]*.05), manager=layoutManager(horizontal=True))
+    row.setBackgroundColor(0,0,0,0)
+    m.addItem(row)
     for val in i.IngredientType:
+        if index == 4:
+            row = menu((winSize[0]*.25, winSize[0]*.05), manager=layoutManager(horizontal=True))
+            row.setBackgroundColor(0,0,0,0)
+            m.addItem(row)
+            index = 0
         b = btn(" ",  (winSize[0]*.05, winSize[0]*.05), path=dir+val.value["icon"])
         b.bindFunction(ingredientInfo, (val))
-        m.addItem(b)
+        row.addItem(b)
+        index += 1
         
 
 
@@ -359,33 +404,15 @@ class btn (label):
             return
         if not (self.y < mouse[1] and mouse[1] < self.y + self.height):
             return
-        # try to run the bound function
+        
+        # try to run the bound function. This section of code has been a nightmare.
         for a in range(0, len(self.func)):
-            # print(self.func[a].__name__, "\t", self.funcArgs[a])
             if type(self.funcArgs[a][0]) is str:
                 self.func[a](self.funcArgs[a][0])
             elif type(self.funcArgs[a]) is None:
                 self.func[a]()
             else:
                 self.func[a](self.funcArgs[a][0])
-
-            # print(self.funcArgs[a])
-            # argString = ""
-            # for val in range(len(self.funcArgs[a])):
-            #     print(type(self.funcArgs[a][val]) )
-            #     if callable(self.funcArgs[a][val]):
-            #         print("agh")
-            #         argString += self.funcArgs[a][val].__name__
-            #     else:
-            #         argString += str(self.funcArgs[a][val])
-            #     if val != len(self.funcArgs[a])-1:
-            #         argString += ", "
-
-            # import importlib, screens
-            # globals().update(importlib.import_module('screens').__dict__)
-            # string = str(self.func[a].__name__) + "(" + argString + ")"
-            # print(string)
-            # exec(string, {'animations': ag.animations}, globals())
 
 
     # binds a function to this button to be ran when this button is clicked.
@@ -508,7 +535,7 @@ class menu (drawObject):
 class cMenu (menu):
     def __init__(self, size: tuple, id, manager = None, path = "", outline = 0, outlineColor = (0, 0, 0, 255)):
         super().__init__(size, manager, path, outline=outline, outlineColor=outlineColor)
-        self.exitBtn = btn("x", size=( ag.winSize[0]*.02, ag.winSize[0]*.02 ))
+        self.exitBtn = btn("x", size=( ag.winSize[0]*.02, ag.winSize[0]*.02 ), center=True)
         self.exitBtn.setBackgroundColor(200, 0, 0, 255)
         self.exitBtn.bindFunction(ag.removeFromScene, id)
         self.exitBtn.bindFunction(self.removal, None)
