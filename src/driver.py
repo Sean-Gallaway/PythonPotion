@@ -3,11 +3,15 @@ from ingredient import *
 from customer import *
 from animationHandler import *
 
-
+score = 0
 user = User()
+user.addToInventory(Ingredient(IngredientType.ROOT))
+
+
+
 # user.addToInventory(generatePotion(Ingredient(IngredientType.FROST_POWDER), Ingredient(IngredientType.FROST_POWDER) ))
 
-user.addToInventory()
+# user.addToInventory()
 
 
 # user.useItem(0)

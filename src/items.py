@@ -33,7 +33,7 @@ class Consumable(Item):
     def canUse (self) -> bool:
         if (self.uses > 0):
             return True; 
-        return False;
+        return False
 
     # when the consumable is used, uses should decrement. returns a list of effects
     def use (self) -> list:

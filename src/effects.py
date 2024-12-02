@@ -9,25 +9,25 @@ class EffectType(Enum):
 
 
 class Effect:
-    effectName = ""
-    duration = 0
+    def __init__(self):
+        self.effectName = ""
+        self.duration = 0
+
     def useEffect (self, name: str, duration = 100):
         raise NotImplementedError()
     
     def __del__ (self):
-        vprint("Deleted " + self.name)
+        vprint("Deleted " + self.effectName)
 
     # check if this Effect has expired or not
     def expired (self) -> bool:
         return self.duration <= 0
 
 class DamageEffect(Effect):
-    amount = 0
-    times = 0
-
     # constructor
     def __init__ (self, name: str, amount: int, times: int, duration: int):
-        Effect.name = name
+        super().__init__()
+        self.effectName = name
         self.amount = amount
         self.times = times
         self.duration = duration
@@ -47,9 +47,6 @@ class HealingEffect(DamageEffect):
         user.hp += (self.amount * self.times)
     
 class ConditionalEffect(Effect):
-    triggeredEffect = None
-    condition = ""
-    
     #
     def __init__ (self, name: str, eff: Effect, con: str):
         self.triggeredEffect = eff

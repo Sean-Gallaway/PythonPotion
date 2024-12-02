@@ -19,7 +19,7 @@ window = pygame.display.set_mode(winSize)
 pygame.display.set_caption("Potion Game")
 
 
-clock = pygame.time.Clock();
+clock = pygame.time.Clock()
 dt = clock.tick(60) / 1000
 
 scene = {}
@@ -29,11 +29,12 @@ class animations(Enum):
     MIX = "potion_game\\animation\\mix.mp4"
     CHOP = "potion_game\\animation\\chop.mp4"
     IDLE = "potion_game\\animation\\idle.mp4"
-currentAnim = animations.IDLE;
+    MAIN = "potion_game\\animation\\main.mp4"
+currentAnim = animations.MAIN
 
 # setup background
 vid = Video("potion_game\\animation\\main.mp4")
-vid.resize( winSize );
+vid.resize( winSize )
 vidSurface = pygame.surface.Surface( winSize )
 
 def removeFromScene(args: tuple):

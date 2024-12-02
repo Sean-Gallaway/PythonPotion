@@ -47,6 +47,8 @@ def popup(args: tuple):
     m.exitBtn.bindFunction(invOpenSet, False)
     ag.scene[args[0]] = m
 
+    buttonCount = len(buttonList)
+
     import ingredient as i
     def ingredientInfo (ing: i.IngredientType):
         global ingOpen
@@ -57,7 +59,7 @@ def popup(args: tuple):
             else:
                 return
         ingOpen = True
-        buttonCount = len(buttonList)
+        
 
         # this is only the start of the spaghetti of this section. i was somehow continually getting more and more buttons and couldn't
         # figure out why so i decided to just pop the buttonList until we get back to the original count. this *should* work as long
@@ -68,15 +70,17 @@ def popup(args: tuple):
         outlineSize = 10
         thisWin = (winSize[0]*.25, winSize[1]*.25)
         mix = btn("Add to Mix", size=(thisWin[0]*.4, thisWin[1]*.105), center=True, fontColor=(255, 255, 255, 255))
-        chop = btn("Chop up and Mix", size=(thisWin[0]*.5, thisWin[1]*.105), center=True, fontColor=(255, 255, 255, 255) )
+        chop = btn("Chop up", size=(thisWin[0]*.5, thisWin[1]*.105), center=True, fontColor=(255, 255, 255, 255) )
 
         # exit all menus from root. something should be implemented in cMenu to make this unnecessary but o well
         def exitMenus (*args):
-            im.exitBtn.forceTrigger()
             m.exitBtn.forceTrigger()
+            im.exitBtn.forceTrigger()
             ingOpenSet(False)
-            buttonList.remove(mix)
-            buttonList.remove(chop)
+            if mix in buttonList:
+                buttonList.remove(mix)
+            if chop in buttonList:
+                buttonList.remove(chop)
 
 
         
@@ -111,9 +115,16 @@ def popup(args: tuple):
         mix.bindFunction(exitMenus, None)
         btnMenu.addItem(mix)
         
+        def chopAddToInv(*args):
+            global user
+            import driver as d
+            d.user.addToInventory(i.Ingredient(ing.value["chopTo"]))
+            d.user.inv.removeItemByIng(ing)
+
         chop.setBackgroundColor(0, 0, 0, 150, outline=outlineSize/2, outlineColor=(255, 255, 255, 200))
         chop.bindFunction(ag.anim, ag.animations.CHOP)
         chop.bindFunction(exitMenus, None)
+        chop.bindFunction(chopAddToInv, None)
         if ing.value["chop"]:
             btnMenu.addItem(chop)
 
@@ -126,14 +137,20 @@ def popup(args: tuple):
     row = menu((winSize[0]*.25, winSize[0]*.05), manager=layoutManager(horizontal=True))
     row.setBackgroundColor(0,0,0,0)
     m.addItem(row)
-    for val in i.IngredientType:
+    import driver as dr
+    for agh in dr.user.inv.storage:
+        print(agh.name)
+
+    for item in dr.user.inv.storage:
         if index == 4:
             row = menu((winSize[0]*.25, winSize[0]*.05), manager=layoutManager(horizontal=True))
             row.setBackgroundColor(0,0,0,0)
             m.addItem(row)
             index = 0
-        b = btn(" ",  (winSize[0]*.05, winSize[0]*.05), path=dir+val.value["icon"])
-        b.bindFunction(ingredientInfo, (val))
+        if type(item) == i.Consumable:
+            continue
+        b = btn(" ",  (winSize[0]*.05, winSize[0]*.05), path=dir+item.itype.value["icon"])
+        b.bindFunction(ingredientInfo, (item.itype))
         row.addItem(b)
         index += 1
         
@@ -241,12 +258,13 @@ class animType(Enum):
 # says how to animate a drawObject
 class animation ():
 
-    def __init__ (self, duration: float, dxdy, interpol = None, type = animType.MOVEMENT, func = None):
+    def __init__ (self, duration: float, dxdy, interpol = None, type = animType.MOVEMENT, func = None, consumable=True):
         self.endPos = dxdy
         self.duration = duration
         self.interpol = interpol
         self.type = type
         self.func = func
+        self.consumable = consumable
 
     # start an animation, the start position should be the objects current position to make things make sense.
     def start (self, obj: drawObject, name):
@@ -264,7 +282,8 @@ class animation ():
     # but here it is because the animation happens in a fixed timeframe, regardless of the easing function
     def advance (self, timeStep: float):
         if self.playing == False and self.name in self.subject.animations:
-            self.subject.removeAnim(self.name)
+            if self.consumable:
+                self.subject.removeAnim(self.name)
             # run functions after animation is done
             if self.func is not None:
                 if type(self.func) is list:
@@ -308,7 +327,7 @@ class animation ():
 class label (drawObject):
 
     # constructor
-    def __init__ (self, msg: str, size: tuple = None, fontSize: float = -1, fontColor = (0, 0, 0, 255), path = "", center = False, outline = 0, outlineColor = (0, 0, 0, 255)):
+    def __init__ (self, msg: str, size: tuple = None, fontSize: float = -1, fontColor = (0, 0, 0, 255), path = "", center = False, outline = 0, outlineColor = (0, 0, 0, 255), lockSize = False):
         self.center = center
         if fontSize == -1 and size is None:
             print("Error with label, size or fontSize must be defined.")
@@ -317,6 +336,7 @@ class label (drawObject):
         # if we do not define a font size, we should probably make it a ratio of the size of the container.
         if fontSize == -1:
             fontSize = size[0] * .5
+        self.fontSize = fontSize
         font = pygame.font.SysFont('couriernew', int(fontSize)) 
         
         # define our size if we don't have a defined size, this is important for the future text splitting step.
@@ -328,7 +348,7 @@ class label (drawObject):
         words = msg.split()
 
         # now, construct lines out of these words
-        self.textList = []
+        textList = []
         while len(words) > 0:
             # get as many words as will fit within allowed_width
             line_words = []
@@ -340,22 +360,64 @@ class label (drawObject):
 
             # add a line consisting of those words
             line = ' '.join(line_words)
-            self.textList.append(line)
+            textList.append(line)
 
 
         # convert our textList into the pygame text objects so they can be rendered.
         self.text = []
-        for t in self.textList:
+        for t in textList:
             r = font.render(t, True, fontColor)
             self.text.append(r)
 
-        if len(self.text) > 1:
-            size = list(size)
-            size[1] *= len(self.textList)
-            size = tuple(size)
+        if not lockSize:
+            if len(self.text) > 1:
+                size = list(size)
+                size[1] *= len(textList)
+                size = tuple(size)
 
         super().__init__(size, outline=outline, outlineColor=outlineColor, path=path)
+        self.size = size
+        self.fontColor = fontColor
 
+    def setText(self, msg: str, center = False, lockSize = False):
+        self.center = center
+
+        font = pygame.font.SysFont('couriernew', int(self.fontSize)) 
+        
+        # define our size if we don't have a defined size, this is important for the future text splitting step.
+        self.textSize = font.size(msg)
+
+
+        # splits text and figures out where we should wrap it.
+        words = msg.split()
+
+        # now, construct lines out of these words
+        textList = []
+        while len(words) > 0:
+            # get as many words as will fit within allowed_width
+            line_words = []
+            while len(words) > 0:
+                line_words.append(words.pop(0))
+                fw, fh = font.size(' '.join(line_words + words[:1]))
+                if fw > self.size[0]:
+                    break
+
+            # add a line consisting of those words
+            line = ' '.join(line_words)
+            textList.append(line)
+
+
+        # convert our textList into the pygame text objects so they can be rendered.
+        self.text = []
+        for t in textList:
+            r = font.render(t, True, self.fontColor)
+            self.text.append(r)
+
+        if not lockSize:
+            if len(self.text) > 1:
+                self.size = list(self.size)
+                self.size[1] *= len(textList)
+                self.size = tuple(self.size)
 
     # draws this object and its text to a given surface.
     def draw (self, window: pygame.surface.Surface):
@@ -380,14 +442,20 @@ class label (drawObject):
 class btn (label):
 
     # constructor
-    def __init__ (self, msg: str, size: tuple = None, path = "", center = False, fontColor = (0, 0, 0, 255), outline = 0, outlineColor = (0, 0, 0, 255)):
+    def __init__ (self, msg: str, size: tuple = None, path = "", center = False, fontColor = (0, 0, 0, 255), fontSize = -1, outline = 0, outlineColor = (0, 0, 0, 255)):
         buttonList.append(self)
         self.func = []
         self.funcArgs = []
         if size is None:
-            super().__init__(msg, size, outline=outline, outlineColor=outlineColor, fontSize = ag.winSize[1]*.1, path=path, center=center, fontColor=fontColor)
+            if fontSize != -1:
+                super().__init__(msg, size, outline=outline, outlineColor=outlineColor, fontSize = fontSize, path=path, center=center, fontColor=fontColor)
+            else:
+                super().__init__(msg, size, outline=outline, outlineColor=outlineColor, fontSize = ag.winSize[1]*.1, path=path, center=center, fontColor=fontColor)
         else:
-            super().__init__(msg, size, outline=outline, outlineColor=outlineColor, fontSize = size[1]*.9, path=path, center=center, fontColor=fontColor)
+            if fontSize != -1:
+                super().__init__(msg, size, outline=outline, outlineColor=outlineColor, fontSize = fontSize, path=path, center=center, fontColor=fontColor)
+            else:
+                super().__init__(msg, size, outline=outline, outlineColor=outlineColor, fontSize = size[1]*.9, path=path, center=center, fontColor=fontColor)
 
     def forceTrigger (self, *args):
         for a in range(0, len(self.func)):
@@ -409,7 +477,7 @@ class btn (label):
         for a in range(0, len(self.func)):
             if type(self.funcArgs[a][0]) is str:
                 self.func[a](self.funcArgs[a][0])
-            elif type(self.funcArgs[a]) is None:
+            elif self.funcArgs[a][0] is None:
                 self.func[a]()
             else:
                 self.func[a](self.funcArgs[a][0])
@@ -528,6 +596,11 @@ class menu (drawObject):
                 obj.setXY(dx+obj.x-originalX, dy+obj.y-originalY)
         super().setXY(dx, dy)
 
+    def removal (self):
+        for item in self.objects:
+            if item in buttonList:
+                buttonList.remove(item)
+
 
 
 
@@ -551,6 +624,8 @@ class cMenu (menu):
             buttonList.remove(self.exitBtn)
         for item in self.objects:
             if item in buttonList:
+                if item is menu or item is cMenu:
+                    item.removal()
                 buttonList.remove(item)
 
     def setXY(self, dx, dy):

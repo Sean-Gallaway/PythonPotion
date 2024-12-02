@@ -3,9 +3,6 @@ from typing import List
 from flags import vprint
 
 class Inventory:
-    storage: List[Item] = []
-    storageSize = 0;
-
     # when deleting, delete any references this class might hold.
     def __del__ (self):
         self.storage.clear()
@@ -13,6 +10,7 @@ class Inventory:
     # sets the initial storage size of this inventory object
     def __init__ (self, size: int):
         self.storageSize = size
+        self.storage: List[Item] = []
 
     #     
     def addItem (self, item: Item) -> bool:
@@ -25,6 +23,14 @@ class Inventory:
         vprint("Inventory full!")        
         return False
     
+    def removeItemByIng (self, item):
+        for i in self.storage:
+            print(i.name, "\t", item.value["name"])
+            if i.name == item.value["name"]:
+                self.storage.remove(i)
+                print("removed")
+                break
+
     #
     def getItem (self, slot: int):
         if len(self.storage) >= slot:
