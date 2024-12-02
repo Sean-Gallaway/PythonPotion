@@ -3,8 +3,11 @@ from animationObject import *
 from screens import *
 
 mainMenu(ag.scene)
-
-
+import driver as dr
+scoreboard = label("Score: " + str(dr.score), fontSize=winSize[0]*0.02, size=(winSize[0]*.2, winSize[1]*.09), center=True, fontColor=(255, 255, 255, 255))
+scoreboard.setBackgroundColor(0, 0, 0, 150, outline=5, outlineColor=(255, 255, 255, 255))
+scoreboard.setXY(0, 0)
+scoreboardPoll = 0
 
 def playGame():
     global dt
@@ -36,7 +39,7 @@ def playGame():
             pygame.display.update()
 
         if not ag.vid.active:
-            if ag.currentAnim == ag.animations.IDLE:
+            if ag.currentAnim == ag.animations.IDLE or ag.currentAnim == ag.animations.MAIN:
                 ag.vid.restart()
             else:
                 ag.vid = Video(ag.animations.IDLE.value)
@@ -51,6 +54,13 @@ def playGame():
         except:
             pass
         
+        if ag.currentAnim != ag.animations.MAIN:
+            global scoreboardPoll
+            scoreboardPoll += 1
+            if scoreboardPoll == 60:
+                scoreboardPoll = 0
+                scoreboard.setText("Score: " + str(dr.score), center=True)
+            scoreboard.draw(ag.window) 
         pygame.display.update()
         pygame.time.wait(16) # around 60 fps
 playGame()
