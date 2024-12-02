@@ -7,6 +7,7 @@ wantDict = {EffectType.DAMAGE:"that will hurt their enemies", EffectType.HEALING
 
 class customer():
     def __init__ (self):
+        self.orderFulfilled = False
         self.effectsWanted = []
         self.wantedString = "A potion "
         for e in range(random.randint(1, 3)):
@@ -27,10 +28,11 @@ class customer():
         for e in potion.effect:
             if e.effectName in self.effectsWanted:
                 hits += 1
-
+        print("customer liked: ", hits)
         import driver as dr
         dr.score += hits
-        print(dr.score)
+        dr.money += random.randint(max(1,10*hits), max(1, 20*hits))
+        self.orderFulfilled = True
 
 
 

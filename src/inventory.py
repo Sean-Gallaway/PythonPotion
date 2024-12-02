@@ -25,10 +25,8 @@ class Inventory:
     
     def removeItemByIng (self, item):
         for i in self.storage:
-            print(i.name, "\t", item.value["name"])
             if i.name == item.value["name"]:
                 self.storage.remove(i)
-                print("removed")
                 break
 
     #

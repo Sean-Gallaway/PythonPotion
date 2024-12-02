@@ -4,11 +4,11 @@ from effects import *
 from items import *
 
 class IngredientType(Enum):
-    CHOPPED_ROOT        = {"name": "Chopped Big Root", "effects": [ [EffectType.DAMAGE, 20.0, 4.0, 1.0] ], "icon": "big_root_powder.png", "desc": "A chopped up big root, eating it is definitely unwise.", "chop": False}
-    ROOT                = {"name": "Big Root", "effects": [ [EffectType.DAMAGE, 10.0, 4.0, 1.0] ], "icon": "big_root.png", "desc": "A big root from an unnamed plant, eating it might be unwise.", "chop": True, "chopTo": CHOPPED_ROOT}
-    FROST_POWDER        = {"name": "Frost Powder", "effects": [ [EffectType.DAMAGE, 1.0, 1.0, 1.0] ], "icon": "frost_powder.png", "desc": "Powder obtained through crushing ice that never melts, cold to the touch.", "chop": False}
-    MINT_POWDER         = {"name": "Mint Powder", "effects": [ [EffectType.CONDITIONAL, [EffectType.HEALING, 200.0, 1.0, 1.0], "user.hp < 0" ] ], "icon": "mint_powder.png", "desc": "Garden variety mint chopped up finely, immensely soothing.", "chop": False}
-    MINT                = {"name": "Mint", "effects": [ [EffectType.CONDITIONAL, [EffectType.HEALING, 100.0, 1.0, 1.0], "user.hp < 0" ] ], "icon": "mint.png", "desc": "Garden variety mint, soothing.", "chop": True, "chopTo": MINT_POWDER}
+    CHOPPED_ROOT        = {"price": 12, "name": "Chopped Big Root", "effects": [ [EffectType.DAMAGE, 20.0, 4.0, 1.0] ], "icon": "big_root_powder.png", "desc": "A chopped up big root, eating it is definitely unwise.", "chop": False}
+    ROOT                = {"price": 10, "name": "Big Root", "effects": [ [EffectType.DAMAGE, 10.0, 4.0, 1.0] ], "icon": "big_root.png", "desc": "A big root from an unnamed plant, eating it might be unwise.", "chop": True, "chopTo": CHOPPED_ROOT}
+    FROST_POWDER        = {"price": 20, "name": "Frost Powder", "effects": [ [EffectType.DAMAGE, 1.0, 1.0, 1.0] ], "icon": "frost_powder.png", "desc": "Powder obtained through crushing ice that never melts, cold to the touch.", "chop": False}
+    MINT_POWDER         = {"price": 17, "name": "Mint Powder", "effects": [ [EffectType.HEALING, 200.0, 1.0, 1.0] ], "icon": "mint_powder.png", "desc": "Garden variety mint chopped up finely, immensely soothing.", "chop": False}
+    MINT                = {"price": 15, "name": "Mint", "effects": [ [EffectType.HEALING, 100.0, 1.0, 1.0] ], "icon": "mint.png", "desc": "Garden variety mint, soothing.", "chop": True, "chopTo": MINT_POWDER}
     
 
 
@@ -52,12 +52,10 @@ def generatePotion ():
     for ing in currPotionList:
         for effect in ing.value["effects"]:
             list.append(generateEffect(effect[0], effect[1::]))
-    print(list)
     p = PotionBuilder.addEffect(list).setUses(1).setName("Weird Potion").createPotion()
     currPotionList.clear()
     return p
 
 
 def addIngredient(itype: Ingredient):
-    print(type(itype))
     currPotionList.append(itype)

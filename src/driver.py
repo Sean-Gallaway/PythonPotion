@@ -4,32 +4,9 @@ from customer import *
 from animationHandler import *
 
 score = 0
+money = 0
+timeInterval = 7
+currentTime = 0
+rentAmt = 20
 user = User()
 user.addToInventory(Ingredient(IngredientType.ROOT))
-
-
-
-# user.addToInventory(generatePotion(Ingredient(IngredientType.FROST_POWDER), Ingredient(IngredientType.FROST_POWDER) ))
-
-# user.addToInventory()
-
-
-# user.useItem(0)
-# print("user hp:", user.hp)
-# user.advanceEffects()
-
-# # user.useItem(0)
-# print("user hp:", user.hp)
-# user.advanceEffects()
-
-# print("user hp:", user.hp)
-# print("deleting user")
-# del user
-
-# print("test")
-
-# cu = customer()
-# cu.wants()
-
-# print("end")
-

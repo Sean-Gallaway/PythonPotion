@@ -50,6 +50,7 @@ class ConditionalEffect(Effect):
     #
     def __init__ (self, name: str, eff: Effect, con: str):
         self.triggeredEffect = eff
+        self.effectName = name
         self.condition = con
         Effect.name = name
     

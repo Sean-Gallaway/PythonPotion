@@ -109,8 +109,14 @@ def popup(args: tuple):
         btnMenu.setXY(winSize[0]*.2575+outlineSize, winSize[1]*.84-thisWin[1]*.11-outlineSize)
 
         
+        def mixAdd (*args):
+            i.addIngredient(ing)
+            global user
+            import driver as d
+            d.user.inv.removeItemByIng(ing)
+
         mix.setBackgroundColor(0, 0, 0, 150, outline=outlineSize/2, outlineColor=(255, 255, 255, 200))
-        mix.bindFunction(i.addIngredient, ing)
+        mix.bindFunction(mixAdd, None)
         mix.bindFunction(ag.anim, ag.animations.MIX)
         mix.bindFunction(exitMenus, None)
         btnMenu.addItem(mix)
@@ -138,8 +144,6 @@ def popup(args: tuple):
     row.setBackgroundColor(0,0,0,0)
     m.addItem(row)
     import driver as dr
-    for agh in dr.user.inv.storage:
-        print(agh.name)
 
     for item in dr.user.inv.storage:
         if index == 4:
@@ -258,7 +262,7 @@ class animType(Enum):
 # says how to animate a drawObject
 class animation ():
 
-    def __init__ (self, duration: float, dxdy, interpol = None, type = animType.MOVEMENT, func = None, consumable=True):
+    def __init__ (self, duration: float, dxdy, type = animType.MOVEMENT, func = None, consumable=True, interpol = eioCubic):
         self.endPos = dxdy
         self.duration = duration
         self.interpol = interpol
@@ -581,9 +585,12 @@ class menu (drawObject):
             if lock and not self.isWithin(obj):
                 obj.setXY(self.x, self.y)
 
-    # def addItem (self, objs: tuple, lock = False):
-    #     for obj in objs:
-    #         self.addItem(obj, lock)
+    def removeItem (self, *obj):
+        for a in obj:
+            if a in self.objects:
+                self.objects.remove(a)
+                self.setXY(self.x, self.y)
+
 
     # sets position of the menu and updates the positions of children if managed.
     def setXY(self, dx, dy):

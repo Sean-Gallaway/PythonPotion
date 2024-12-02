@@ -6,7 +6,7 @@ mainMenu(ag.scene)
 import driver as dr
 scoreboard = label("Score: " + str(dr.score), fontSize=winSize[0]*0.02, size=(winSize[0]*.2, winSize[1]*.09), center=True, fontColor=(255, 255, 255, 255))
 scoreboard.setBackgroundColor(0, 0, 0, 150, outline=5, outlineColor=(255, 255, 255, 255))
-scoreboard.setXY(0, 0)
+scoreboard.setXY(0, -winSize[1])
 scoreboardPoll = 0
 
 def playGame():
