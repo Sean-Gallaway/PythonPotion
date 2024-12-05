@@ -6,7 +6,8 @@ class EffectType(Enum):
     CONDITIONAL = 0
     HEALING = 1
     DAMAGE = 2
-
+    STRENGTH = 3
+    MAXHEALTH = 4
 
 class Effect:
     def __init__(self):
@@ -22,6 +23,23 @@ class Effect:
     # check if this Effect has expired or not
     def expired (self) -> bool:
         return self.duration <= 0
+
+class HealthEffect(Effect):
+    # constructor
+    def __init__ (self, name: str, amount: int, times: int, duration: int):
+        super().__init__()
+        self.effectName = name
+        self.amount = amount
+        self.times = times
+        self.duration = duration
+
+    # 
+    def useEffect (self, user: User): # type: ignore
+        self.duration -= 1
+        # user.hp -= (self.amount * self.times)
+
+    def __str__ (self):
+        return self.name + " amount: " + str(self.amount) + " times: " + str(self.times) 
 
 class DamageEffect(Effect):
     # constructor

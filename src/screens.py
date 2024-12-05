@@ -5,23 +5,23 @@ from animationObject import *
 def mainMenu(scene):
     # main menu
     obj = menu((winSize[0]*.8, winSize[1]*.8), path="potion_game\\assets\\mainmenu.png")
-    obj.setXY(winSize[0]*.1, winSize[1]+200)
+    obj.setXY(winSize[0]*.1, winSize[1]*1.35)
     obj.addAnim("Enter", animation(.5, dxdy=(winSize[0]*.1, winSize[1]*.1), interpol=eioCubic))
     obj.keyAction(K_ESCAPE, obj.playAnim, "Enter")
 
-    l2 = label("Potion Game", fontSize=50, center=True)
+    l2 = label("Potion Game", fontSize=winSize[1]*.075, center=True)
     l2.setBackgroundColor(0, 0, 0, 0)
-    l2.setXY(winSize[0]*.57, winSize[1]*1.365)
+    l2.setXY(winSize[0]*.5625, winSize[1]*1.425)
     obj.addItem(l2)
 
-    la = label("Press ESC to start.", fontSize = 60, fontColor=(255, 255, 255, 255), center=True)
+    la = label("Press ESC to start.", fontSize = winSize[1]*0.1, fontColor=(255, 255, 255, 255), center=True)
     la.setBackgroundColor(0, 0, 0, 100)
-    la.setXY(winSize[0]/2, winSize[1]/2-100, True)
+    la.setXY(winSize[0]*.5, winSize[1]*.4, True)
     #
 
     # main menu options
-    submenu = menu((winSize[0]*.25, winSize[1]*.6), manager=layoutManager(horizontal=False, paddingY = winSize[1]*0.05))
-    submenu.setXY(winSize[0]*.575, winSize[1]*1.4875)
+    submenu = menu((winSize[0]*.25, winSize[1]*.6), manager=layoutManager(horizontal=False, paddingY = winSize[1]*0.1))
+    submenu.setXY(winSize[0]*.575, winSize[1]*1.55)
     submenu.setBackgroundColor(0, 0, 0, 0)
     obj.addItem(submenu)
 
@@ -81,29 +81,33 @@ def mixScreen (scene):
     customerMenu.setBackgroundColor(0, 0, 0, 150, outline=outline/2, outlineColor=(255, 255, 255, 200))
     customers.setBackgroundColor(0, 0, 0, 150)
     import customer as cust
-    import ingredient as ig
-    for c in cust.customers:
-        custRow = menu((winSize[0]*.5-outline*1.25, winSize[1]*.1))
-        custRow.setBackgroundColor(0, 0, 0, 150, outline=outline/2, outlineColor=(255, 255, 255, 200))
-        custIcon = drawObject((winSize[1]*.09, winSize[1]*.09))
-        custIcon.setBackgroundColor(100, 0, 0, 255)
-        customers.addItem(custRow)
-        custRow.addItem(custIcon)
-        custIcon.setXY(custRow.x+winSize[1]*.005, custRow.y+winSize[1]*.005)
+    cust.getDailyCustomers()
+    try:
+        for a in range(0, len(cust.customers)):
+            custRow = menu((winSize[0]*.5-outline*1.25, winSize[1]*.1))
+            custRow.setBackgroundColor(0, 0, 0, 150, outline=outline/2, outlineColor=(255, 255, 255, 200))
+            custIcon = drawObject((winSize[1]*.09, winSize[1]*.09))
+            custIcon.setBackgroundColor(100, 0, 0, 255)
+            customers.addItem(custRow)
+            custRow.addItem(custIcon)
+            custIcon.setXY(custRow.x+winSize[1]*.005, custRow.y+winSize[1]*.005)
 
-        custWant = label(c.wants(), fontSize=winSize[0]*0.015, size=(winSize[0]*.35, winSize[1]*.09), fontColor=(255, 255, 255, 255), lockSize=True)
-        custWant.setBackgroundColor(0, 0, 0, 150)
-        custRow.addItem(custWant)
-        custWant.setXY(custRow.x+custIcon.width+outline/2, custRow.y+winSize[1]*0.005)
+            custWant = label(cust.customers[a].wants(), fontSize=winSize[0]*0.015, size=(winSize[0]*.35, winSize[1]*.09), fontColor=(255, 255, 255, 255), lockSize=True)
+            custWant.setBackgroundColor(0, 0, 0, 150)
+            custRow.addItem(custWant)
+            custWant.setXY(custRow.x+custIcon.width+outline/2, custRow.y+winSize[1]*0.005)
 
-        give = btn("Give Potion", size=(winSize[0]*.075, winSize[1]*.05), fontSize=winSize[0]*0.01, fontColor=(255, 255, 255, 255), center=True)
-        give.setXY(custRow.x+custRow.width-give.width-outline*.8, custRow.y+winSize[1]*0.025)
-        give.setBackgroundColor(0, 0, 0, 150, outline=outline/2, outlineColor=(255, 255, 255, 200))
-        give.bindFunction(c.evaluateGivenPotion, None)
-        give.bindFunction(customerMenu.playAnim, "close")
-        give.bindFunction(customers.removeItem, custRow)
-        custRow.addItem(give)  
-    #
+            give = btn("Give Potion", size=(winSize[0]*.075, winSize[1]*.05), fontSize=winSize[0]*0.01, fontColor=(255, 255, 255, 255), center=True)
+            give.setXY(custRow.x+custRow.width-give.width-outline*.8, custRow.y+winSize[1]*0.025)
+            give.setBackgroundColor(0, 0, 0, 150, outline=outline/2, outlineColor=(255, 255, 255, 200))
+            
+            give.bindFunction(cust.customers[a].evaluateGivenPotion, None)
+            give.bindFunction(customerMenu.playAnim, "close")
+            give.bindFunction(customers.removeItem, custRow)
+            custRow.addItem(give)  
+        #
+    except Exception as e:
+        print(e)
 
     # button to brew a potion.
     btn2 = btn("Brew", fontColor=(255, 255, 255, 255))

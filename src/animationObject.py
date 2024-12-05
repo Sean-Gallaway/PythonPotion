@@ -92,13 +92,13 @@ def popup(args: tuple):
         im.exitBtn.bindFunction(ingOpenSet, False)
 
         # name of the ingredient we are looking at
-        name = label(ing.value["name"], fontSize=20, fontColor=(255, 255, 255, 255))
+        name = label(ing.value["name"], fontSize=winSize[1]*.025, fontColor=(255, 255, 255, 255))
         im.addItem(name)
         name.setXY(winSize[0]*.2575+outlineSize, winSize[1]*.5875+outlineSize)
         name.setBackgroundColor(0,0,0,0)
 
         # description of the ingredient we are looking at
-        desc = label(ing.value["desc"], size=(thisWin[0]*.9, thisWin[1]*.1), fontSize=20, fontColor=(255, 255, 255, 255) )
+        desc = label(ing.value["desc"], size=(thisWin[0]*.9, thisWin[1]*.1), fontSize=winSize[1]*.025, fontColor=(255, 255, 255, 255) )
         desc.setXY(winSize[0]*.2575+outlineSize, winSize[1]*.6375+outlineSize)
         im.addItem(desc)
         desc.setBackgroundColor(0,0,0,0)

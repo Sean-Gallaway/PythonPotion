@@ -3,7 +3,7 @@ import random
 
 customers = []
 
-wantDict = {EffectType.DAMAGE:"that will hurt their enemies", EffectType.HEALING: "that will cure their ills", EffectType.CONDITIONAL: "that has a dual nature"}
+wantDict = {EffectType.DAMAGE:"that will hurt their enemies", EffectType.HEALING: "that will cure their ills", EffectType.CONDITIONAL: "that has a dual nature", EffectType.MAXHEALTH: "that will make them sturdier"}
 
 class customer():
     def __init__ (self):
@@ -21,6 +21,7 @@ class customer():
         return self.wantedString
     
     def evaluateGivenPotion (self):
+        print(self.effectsWanted)
         import ingredient as ing
         potion = ing.generatePotion()
 
@@ -31,7 +32,8 @@ class customer():
         print("customer liked: ", hits)
         import driver as dr
         dr.score += hits
-        dr.money += random.randint(max(1,10*hits), max(1, 20*hits))
+
+        dr.money += random.randint(max(5*hits,10*hits), max(10*hits, 20*hits))
         self.orderFulfilled = True
 
 
@@ -39,5 +41,6 @@ class customer():
 # on day start, get the daily customer orders
 def getDailyCustomers ():
     customers.clear()
+
     for c in range(random.randint(1, 4)):
         customers.append(customer())

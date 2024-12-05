@@ -13,7 +13,7 @@ width = root.winfo_screenwidth()
 #
 
 # setup window
-winSize = (int(width/2), int(height/2))
+winSize = (int(width/1.25), int(height/1.25))
 pygame.init()
 window = pygame.display.set_mode(winSize)
 pygame.display.set_caption("Potion Game")
